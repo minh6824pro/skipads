@@ -2,7 +2,11 @@ package main
 
 import (
 	"SkipAdsV2/config"
-	"github.com/gin-gonic/gin"
+	"SkipAdsV2/controller/userskipadshttp"
+	"SkipAdsV2/redis_service"
+	"SkipAdsV2/repository"
+	"SkipAdsV2/service/skipcmd"
+	"SkipAdsV2/service/skipquery"
 	"go.uber.org/zap"
 )
 
@@ -18,10 +22,38 @@ func main() {
 	}
 	lg.Info("config", zap.Any("config", cfg))
 
-	//TODO init repo,service,controller
+	repo, err := repository.NewRepoMysql(cfg)
+	if err != nil {
+		lg.Panic("cannot connect to mysql", zap.Error(err))
+	}
+	err = repo.InitTable()
+	if err != nil {
+		lg.Panic("InitTable failed", zap.Error(err))
+	}
 
-	r := gin.Default()
+	redis, err := redis_service.NewRedis(cfg)
+	if err != nil {
+		lg.Info("cannot init redis", zap.Error(err))
+	}
 
-	r.Run(":8080")
+	command, err := skipcmd.NewCommand(cfg, repo, redis)
+	if err != nil {
+		lg.Panic("cannot init commands skip ", zap.Error(err))
+	}
+
+	query, err := skipquery.NewQuery(cfg, repo)
+	if err != nil {
+		lg.Panic("cannot init query skip ", zap.Error(err))
+	}
+
+	ginHttp, err := userskipadshttp.NewHttpServer(cfg, command, query)
+	if err != nil {
+		lg.Panic("cannot init http server user skip ads ", zap.Error(err))
+	}
+
+	// Seed data
+	//repo.SeedUser()
+	//repo.SeedSkipAds()
+	ginHttp.StartWithGracefulShutdown()
 
 }
