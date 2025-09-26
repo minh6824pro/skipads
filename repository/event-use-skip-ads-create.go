@@ -49,7 +49,7 @@ func (r *RepoMySQL) ProcessEventUseSkipAds(ctx context.Context, request httpmode
 		tx.Rollback()
 		return &errorcode.ErrorService{
 			InternalError: errors.New("insufficient skip ads"),
-			ErrorCode:     errorcode.ErrInvalidRequest,
+			ErrorCode:     errorcode.ErrUserSkipAdsInsufficient,
 		}
 	}
 

@@ -6,13 +6,10 @@ import (
 )
 
 var MappingErrorCodeWithStatus = map[string]int{
-	errorcode.CodeErrSystem: http.StatusInternalServerError,
-	errorcode.CodeErrAuth:   http.StatusUnauthorized,
-	//errorcode.CodeErrDataRequestInvalid:       http.StatusBadRequest,
-	//errorcode.CodeErrUserSkipAdsNotEnough:       http.StatusBadRequest,
-	//errorcode.CodeErrUserRewardPointDuplicate: http.StatusBadRequest,
-	//errorcode.CodeErrUserPointNotFound:        http.StatusNotFound,
-	//errorcode.CodeErrUserAdjustPointDuplicate: http.StatusBadRequest,
+	errorcode.CodeErrSystem:                  http.StatusInternalServerError,
+	errorcode.CodeErrAuth:                    http.StatusUnauthorized,
+	errorcode.CodeErrDataRequestInvalid:      http.StatusBadRequest,
+	errorcode.CodeErrUserSkipAdsInsufficient: http.StatusBadRequest,
 }
 
 func GetStatusByErrCode(errorCode string) *int {
