@@ -13,10 +13,10 @@ func (g *GinHttp) LoggingRequest() gin.HandlerFunc {
 		start := time.Now()
 		req := c.Request
 
-		// tiếp tục xử lý request
+		// continue handle request
 		c.Next()
 
-		// sau khi handler hoàn thành
+		// after handler finish
 		stop := time.Now()
 		latency := stop.Sub(start)
 

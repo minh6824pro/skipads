@@ -30,7 +30,7 @@ func (g *GinHttp) HandleUseSkipAds(c *gin.Context) {
 		return
 	}
 	res := httpmodel.Response{
-		Message: "Purchase created successfully",
+		Message: "use skip ads success",
 		Data:    "success",
 	}
 	c.JSON(http.StatusOK, res)

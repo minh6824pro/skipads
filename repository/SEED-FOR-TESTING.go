@@ -7,7 +7,7 @@ import (
 )
 
 func (r *RepoMySQL) SeedUser() {
-	for i := 1; i <= 10000; i++ {
+	for i := 10001; i <= 100000; i++ {
 		user := entities.User{
 			UserID: uint32(i),
 			Name:   "Test",
@@ -46,9 +46,9 @@ func (r *RepoMySQL) SeedSkipAds() {
 	var batchSize = 1000
 	var events []entities.EventAddSkipAds
 
-	for i := 1; i <= 10000; i++ {
+	for i := 10001; i <= 100000; i++ {
 		for j := 1; j <= 5; j++ {
-			for z := 1; z <= 50; z++ {
+			for z := 1; z <= 10; z++ {
 				packageId := uint32(j)
 				event := entities.EventAddSkipAds{
 					UserID:        uint32(i),
@@ -59,6 +59,7 @@ func (r *RepoMySQL) SeedSkipAds() {
 					Type:          typeMap[j],
 					ExpiresAt:     time.Now().Add(time.Duration(expireMap[j]) * 24 * time.Hour),
 				}
+				event.SetPriority()
 				events = append(events, event)
 
 				// flush when batch >= batchSize

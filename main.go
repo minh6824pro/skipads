@@ -7,7 +7,9 @@ import (
 	"SkipAdsV2/repository"
 	"SkipAdsV2/service/skipcmd"
 	"SkipAdsV2/service/skipquery"
+	"context"
 	"go.uber.org/zap"
+	"time"
 )
 
 func main() {
@@ -35,7 +37,6 @@ func main() {
 	if err != nil {
 		lg.Info("cannot init redis", zap.Error(err))
 	}
-
 	command, err := skipcmd.NewCommand(cfg, repo, redis)
 	if err != nil {
 		lg.Panic("cannot init commands skip ", zap.Error(err))
@@ -51,9 +52,22 @@ func main() {
 		lg.Panic("cannot init http server user skip ads ", zap.Error(err))
 	}
 
-	// Seed data
+	redis.StartRedisHealthCheck(context.Background(), 5*time.Second)
+
+	// Seed  user data
 	//repo.SeedUser()
+
+	// Seed purchase,exchange
 	//repo.SeedSkipAds()
+
+	// cron job clean not usable event add skip ads
+	//go func() {
+	//	time.Sleep(2 * time.Second) //
+	//	if err := repo.ArchiveEventAddSkipAds(); err != nil {
+	//		log.Println("[startup] Archive failed:", err)
+	//	}
+	//}()
+
 	ginHttp.StartWithGracefulShutdown()
 
 }

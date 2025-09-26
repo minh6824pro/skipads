@@ -19,6 +19,7 @@ func (cmd *Command) HandleEventExchangePackage(ctx context.Context, eventExchang
 	eventExchange.Type = entities.EventAddSkipAdsExchange
 	expires := time.Now().Add(time.Duration(pkg.ExpiresAfter) * 24 * time.Hour)
 	eventExchange.ExpiresAt = expires
+	eventExchange.SetPriority()
 
 	// create event
 	err = cmd.db.CreateEventAddSkipAds(ctx, eventExchange)

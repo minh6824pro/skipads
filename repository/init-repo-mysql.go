@@ -62,6 +62,7 @@ func (m *RepoMySQL) InitTable() error {
 		&entities.Package{},
 		&entities.EventAddSkipAds{},
 		&entities.EventSubSkipAds{},
+		&entities.EventAddSkipAdsArchive{},
 	)
 	if err != nil {
 		return err

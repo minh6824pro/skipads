@@ -5,14 +5,15 @@ import (
 	"context"
 )
 
-func (cmd *Command) HandleEventGrantSkipAds(ctx context.Context, eventExchange *entities.EventAddSkipAds) error {
+func (cmd *Command) HandleEventGrantSkipAds(ctx context.Context, eventGrant *entities.EventAddSkipAds) error {
 	// TODO check user exists
 
-	eventExchange.QuantityUsed = 0
-	eventExchange.Type = entities.EventAddSkipAdsGrant
+	eventGrant.QuantityUsed = 0
+	eventGrant.Type = entities.EventAddSkipAdsGrant
+	eventGrant.SetPriority()
 
 	// create event
-	err := cmd.db.CreateEventAddSkipAds(ctx, eventExchange)
+	err := cmd.db.CreateEventAddSkipAds(ctx, eventGrant)
 	if err != nil {
 		return err
 	}

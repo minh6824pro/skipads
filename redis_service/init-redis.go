@@ -4,29 +4,37 @@ import (
 	"SkipAdsV2/config"
 	"context"
 	"github.com/redis/go-redis/v9"
+	"sync/atomic"
+)
+
+const (
+	UserSkipAdsLockKeyPattern = "user-skip-ads-lock-%d"
 )
 
 type RedisService struct {
 	RedisClient *redis.Client
+	IsAlive     atomic.Bool
 }
 
 func NewRedis(Cfg config.Config) (*RedisService, error) {
 	addr := Cfg.Redis.URI
 	password := Cfg.Redis.Password
-	dbStr := Cfg.Redis.DbString
+	db := Cfg.Redis.Db
 
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     addr,
 		Password: password,
-		DB:       dbStr,
+		DB:       db,
 	})
 
-	// Kiểm tra kết nối Redis
+	// check redis connection
 	err := redisClient.Ping(context.Background()).Err()
+	redisService := &RedisService{RedisClient: redisClient}
 	if err != nil {
-		return nil, err
+		redisService.IsAlive.Store(false)
+
 	} else {
-		return nil, err
+		redisService.IsAlive.Store(true)
 	}
-	return &RedisService{RedisClient: redisClient}, nil
+	return redisService, err
 }

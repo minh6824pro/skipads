@@ -22,7 +22,7 @@ type MySQL struct {
 	URI           string        `env:"MYSQL_URI" env-required:"true"`
 	TimeToConnect time.Duration `env:"MYSQL_TIME_TO_CONNECT" env-default:"20s"`
 
-	MaxConnections        uint32 `env:"MYSQL_MAX_CONNECTIONS" env-default:"100"`
+	MaxConnections        uint32 `env:"MYSQL_MAX_CONNECTIONS" env-default:"130"`
 	MaxIdleConnections    uint32 `env:"MYSQL_MAX_IDLE_CONNECTIONS" env-default:"10"`
 	ConnectionMaxLifeTime uint32 `env:"MYSQL_MAX_CONNECTIONS_TIME" env-default:"30"`
 	ConnectionMaxIdleTime uint32 `env:"MYSQL_MAX_IDLE_CONNECTIONS_TIME" env-default:"10"`
@@ -31,7 +31,7 @@ type MySQL struct {
 type Redis struct {
 	URI      string `env:"REDIS_URI" env-required:"true"`
 	Password string `env:"REDIS_PASSWORD" env-default:""`
-	DbString int    `env:"REDIS_DB" env-default:"0"`
+	Db       int    `env:"REDIS_DB" env-default:"0"`
 }
 
 func NewConfig() (Config, error) {

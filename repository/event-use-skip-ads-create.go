@@ -30,10 +30,10 @@ func (r *RepoMySQL) ProcessEventUseSkipAds(ctx context.Context, request httpmode
 	FROM event_add_skip_ads 
 	WHERE user_id= ?
 	AND expires_at> ?
-	AND quantity-quantity_used>0
+ 	AND quantity-quantity_used>0
 	ORDER BY 
-	    FIELD (type, 'exchange','grant','purchase'),
-	    expires_at ASC
+		priority ASC,
+		expires_at ASC
 	LIMIT 3
 	FOR UPDATE`, userID, now).Scan(&availableEventAdd).Error
 
@@ -58,10 +58,10 @@ func (r *RepoMySQL) ProcessEventUseSkipAds(ctx context.Context, request httpmode
 		if remainingToUse == 0 {
 			break
 		}
-
+		// calculate usable quantity from each event_add
 		useFromThis := min(remainingToUse, event.Remaining)
 		if useFromThis > 0 {
-			//
+			// update event_add.quantity_used
 			result := tx.Model(entities.EventAddSkipAds{}).
 				Where("id=? AND quantity - quantity_used >= ?", event.EventAddID, useFromThis).
 				Update("quantity_used", gorm.Expr("quantity_used + ?", useFromThis))
@@ -78,6 +78,7 @@ func (r *RepoMySQL) ProcessEventUseSkipAds(ctx context.Context, request httpmode
 				}
 			}
 
+			// create event_sub
 			eventSub := entities.EventSubSkipAds{
 				UserID:        userID,
 				SourceSubID:   event.EventAddID,

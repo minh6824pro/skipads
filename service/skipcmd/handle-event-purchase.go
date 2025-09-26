@@ -19,6 +19,7 @@ func (cmd *Command) HandleEventPurchasePackage(ctx context.Context, eventPurchas
 	eventPurchase.Type = entities.EventAddSkipAdsPurchase
 	expires := time.Now().Add(time.Duration(pkg.ExpiresAfter) * 24 * time.Hour)
 	eventPurchase.ExpiresAt = expires
+	eventPurchase.SetPriority()
 
 	// create event
 	err = cmd.db.CreateEventAddSkipAds(ctx, eventPurchase)
