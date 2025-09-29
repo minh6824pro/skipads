@@ -2,6 +2,7 @@ package repository
 
 import (
 	"SkipAdsV2/entities"
+	"database/sql"
 	"time"
 )
 
@@ -23,7 +24,22 @@ func (r *RepoMySQL) ArchiveEventAddSkipAds() error {
 			break
 		}
 
-		tx := r.db.Begin()
+		// By default, MySQL uses REPEATABLE READ isolation.
+		// Under REPEATABLE READ, SELECT ... FOR UPDATE will keep locks on rows
+		// even if they no longer match the query condition later in the transaction.
+		// This can cause deadlocks between two transactions:
+		//   - "consume skip ads" locks usable rows (quantity > quantity_used, not expired)
+		//   - "archive" locks expired or fully used rows
+		// Because REPEATABLE READ holds locks more aggressively, both transactions
+		// may wait on each other’s locks, resulting in a deadlock.
+
+		// Set the isolation level for this transaction to READ COMMITTED.
+		// This helps prevent deadlocks when archiving and consuming skip ads concurrently.
+		// Reason: consuming skip ads locks only usable events (not expired and quantity > quantity_used),
+		// while archiving locks expired or fully used events. Using READ COMMITTED avoids unnecessary conflicts.
+		tx := r.db.Begin(&sql.TxOptions{
+			Isolation: sql.LevelReadCommitted,
+		})
 		if tx.Error != nil {
 			return tx.Error
 		}

@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-
 	"time"
 )
 
@@ -74,7 +73,7 @@ func (g *GinHttp) initRouters() {
 		})
 	}
 
-	// Example routes
+	// routes
 	r.POST("/purchases", g.HandlePurchasePackage)
 	r.GET("/skipads/:user_id", g.HandleGetUserSkipAds)
 	r.POST("/exchanges", g.HandleExchangePackage)

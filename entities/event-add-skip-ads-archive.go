@@ -12,6 +12,7 @@ type EventAddSkipAdsArchive struct {
 	Type          EventAddSkipAdsType `gorm:"type:varchar(20);not null" json:"type"`
 	Description   string              `gorm:"type:text" json:"description"`
 	ExpiresAt     time.Time           `gorm:"not null" json:"expires_at"`
+	Priority      uint32              `gorm:"not null" json:"priority"`
 	CreatedAt     time.Time           `json:"created_at"`
 	UpdatedAt     time.Time           `json:"updated_at"`
 }
