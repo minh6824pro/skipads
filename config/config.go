@@ -47,3 +47,7 @@ func NewConfig() (Config, error) {
 
 	return cfg, nil
 }
+
+func (c Config) GetInternalAPIKey() string {
+	return InternalAPIKey
+}

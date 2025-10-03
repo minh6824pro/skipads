@@ -1,6 +1,6 @@
 package repomodel
 
 type AvailableSkipAds struct {
-	EventAddID uint32
+	EventAddID uint64
 	Remaining  uint32
 }

@@ -16,18 +16,17 @@ var priorityMap = map[EventAddSkipAdsType]uint32{
 	EventAddSkipAdsPurchase: 3,
 }
 
-// index idx_user_expire(user_id,priority,expires_at)
 type EventAddSkipAds struct {
-	ID            uint32              `gorm:"primaryKey;autoIncrement" json:"id"`
-	UserID        uint32              `gorm:"not null;index:idx_user_expire" json:"user_id"`
-	PackageID     *uint32             `json:"package_id,omitempty"`            // null if event is grant
-	SourceEventID uint32              `gorm:"not null" json:"source_event_id"` // transaction id if buy, exchange id if exchange,...
+	ID            uint64              `gorm:"primaryKey;AUTO_INCREMENT" json:"id"`
+	UserID        string              `gorm:"size:255;not null" json:"user_id"`
+	PackageID     *string             `json:"size:255;package_id,omitempty"`            // null if event is grant
+	SourceEventID string              `gorm:"size:255;not null" json:"source_event_id"` // transaction id if buy, exchange id if exchange,...
 	Quantity      uint32              `gorm:"not null" json:"quantity"`
 	QuantityUsed  uint32              `gorm:"not null" json:"quantity_used"`
 	Type          EventAddSkipAdsType `gorm:"type:varchar(20);not null" json:"type"`
-	Description   string              `gorm:"type:text" json:"description"`
-	Priority      uint32              `gorm:"not null;index:idx_user_expire" json:"priority"`
-	ExpiresAt     time.Time           `gorm:"not null;index:idx_user_expire" json:"expires_at"`
+	Description   string              `gorm:"size:255;type:text" json:"description"`
+	Priority      uint32              `gorm:"not null" json:"priority"`
+	ExpiresAt     time.Time           `gorm:"not null" json:"expires_at"`
 	CreatedAt     time.Time           `gorm:"autoCreateTime" json:"created_at"`
 	UpdatedAt     time.Time           `gorm:"autoUpdateTime" json:"updated_at"`
 }

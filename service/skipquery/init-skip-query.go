@@ -8,7 +8,7 @@ import (
 )
 
 type DatabaseInterface interface {
-	GetUserSkipAds(ctx context.Context, userID int32) (repomodel.SkipAdsResult, error)
+	GetUserSkipAds(ctx context.Context, userID string) (repomodel.SkipAdsResult, error)
 }
 
 type Query struct {

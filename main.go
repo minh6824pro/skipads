@@ -8,6 +8,7 @@ import (
 	"SkipAdsV2/service/skipcmd"
 	"SkipAdsV2/service/skipquery"
 	"context"
+	"fmt"
 	"go.uber.org/zap"
 	"time"
 )
@@ -52,22 +53,29 @@ func main() {
 		lg.Panic("cannot init http server user skip ads ", zap.Error(err))
 	}
 
-	redis.StartRedisHealthCheck(context.Background(), 5*time.Second)
-
-	// Seed  user data
-	//repo.SeedUser()
-
-	// Seed purchase,exchange
-	//repo.SeedSkipAds()
+	//redis.StartRedisHealthCheck(context.Background(), 5*time.Second)
 
 	// cron job clean not usable event add skip ads
-	//go func() {
-	//	time.Sleep(2 * time.Second) //
-	//	if err := repo.ArchiveEventAddSkipAds(); err != nil {
-	//		log.Println("[startup] Archive failed:", err)
-	//	}
-	//}()
+	startCronScanUnusableEventAdd(context.Background(), repo, lg)
 
 	ginHttp.StartWithGracefulShutdown()
 
+}
+
+func startCronScanUnusableEventAdd(ctx context.Context, repo *repository.RepoMySQL, logger *zap.Logger) {
+	go func(ctx context.Context, repo *repository.RepoMySQL, logger *zap.Logger) {
+		for {
+			now := time.Now()
+			// calculate seconds to next hour, ex: 11h, 12h, 13h, etc.
+			timeRun := 3600 - (now.Minute()*60 + now.Second())
+			time.Sleep(time.Duration(timeRun) * time.Second)
+
+			// call function to scan unusable event add
+			ctxSchedule, _ := context.WithTimeout(ctx, 20*time.Minute)
+			err := repo.ArchiveEventAddSkipAds(ctxSchedule)
+			if err != nil {
+				logger.Error(fmt.Sprintf("ScanUnsableEventAdd failed with error: %v", err))
+			}
+		}
+	}(ctx, repo, logger)
 }

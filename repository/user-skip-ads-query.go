@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func (r *RepoMySQL) GetUserSkipAds(ctx context.Context, userID int32) (repomodel.SkipAdsResult, error) {
+func (r *RepoMySQL) GetUserSkipAds(ctx context.Context, userID string) (repomodel.SkipAdsResult, error) {
 	var result repomodel.SkipAdsResult
 	now := time.Now()
 	err := r.db.Raw(`

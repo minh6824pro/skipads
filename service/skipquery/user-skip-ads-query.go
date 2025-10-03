@@ -5,7 +5,7 @@ import (
 	"context"
 )
 
-func (q *Query) GetUserSkipAds(ctx context.Context, userID int32) (repomodel.SkipAdsResult, error) {
+func (q *Query) GetUserSkipAds(ctx context.Context, userID string) (repomodel.SkipAdsResult, error) {
 	userSkipAds, err := q.db.GetUserSkipAds(ctx, userID)
 	if err != nil {
 		return userSkipAds, err

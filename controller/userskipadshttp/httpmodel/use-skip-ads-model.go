@@ -6,21 +6,28 @@ import (
 )
 
 type UseSkipAdsRequest struct {
-	UserID      uint32 `json:"user_id" binding:"required"`
+	UserID      string `json:"user_id" binding:"required"`
+	AppID       string `json:"app_id" binding:"required"`
 	Quantity    uint32 `json:"quantity" binding:"required"`
 	Description string `json:"description"`
 }
 
 func (req *UseSkipAdsRequest) Validate() error {
-	if req.UserID == 0 {
+	if req.UserID == "" {
 		return &errorcode.ErrorService{
-			InternalError: errors.New("user_id can't be 0"),
+			InternalError: errors.New("user_id can't be nil"),
 			ErrorCode:     errorcode.ErrInvalidRequest,
 		}
 	}
 	if req.Quantity == 0 {
 		return &errorcode.ErrorService{
 			InternalError: errors.New("quantity can't be 0"),
+			ErrorCode:     errorcode.ErrInvalidRequest,
+		}
+	}
+	if req.AppID == "" {
+		return &errorcode.ErrorService{
+			InternalError: errors.New("app_id can't be nil"),
 			ErrorCode:     errorcode.ErrInvalidRequest,
 		}
 	}

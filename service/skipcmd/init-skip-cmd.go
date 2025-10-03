@@ -11,8 +11,9 @@ import (
 
 type DatabaseInterface interface {
 	CreateEventAddSkipAds(ctx context.Context, event *entities.EventAddSkipAds) error
-	GetPurchasePackageByID(ctx context.Context, packageID *uint32) (entities.Package, error)
-	GetExchangePackageByID(ctx context.Context, packageID *uint32) (entities.Package, error)
+	CreatePackage(ctx context.Context, pkg *entities.Package, games []*entities.PackageGame) error
+	GetPurchasePackageByID(ctx context.Context, packageID *string) (entities.Package, error)
+	GetExchangePackageByID(ctx context.Context, packageID *string) (entities.Package, error)
 	ProcessEventUseSkipAds(ctx context.Context, request httpmodel.UseSkipAdsRequest) error
 }
 

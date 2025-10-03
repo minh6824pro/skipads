@@ -6,6 +6,7 @@ import (
 	"SkipAdsV2/errorcode"
 	"SkipAdsV2/repository/repomodel"
 	"context"
+	"database/sql"
 	"errors"
 	"gorm.io/gorm"
 	"time"
@@ -14,8 +15,11 @@ import (
 func (r *RepoMySQL) ProcessEventUseSkipAds(ctx context.Context, request httpmodel.UseSkipAdsRequest) error {
 	userID := request.UserID
 	quantity := request.Quantity
-
-	tx := r.db.Begin()
+	appID := request.AppID
+	// avoid gap lock
+	tx := r.db.WithContext(ctx).Begin(&sql.TxOptions{
+		Isolation: sql.LevelReadCommitted,
+	})
 	defer func() {
 		if err := recover(); err != nil {
 			tx.Rollback()
@@ -26,16 +30,19 @@ func (r *RepoMySQL) ProcessEventUseSkipAds(ctx context.Context, request httpmode
 	now := time.Now()
 	var availableEventAdd []repomodel.AvailableSkipAds
 	err := tx.Raw(`
-	SELECT id as event_add_id,quantity-quantity_used as remaining
+	SELECT id as event_add_id,
+	       quantity-quantity_used as remaining
 	FROM event_add_skip_ads 
+	    INNER JOIN  package_games ON package_games.package_id = event_add_skip_ads.package_id
 	WHERE user_id= ?
 	AND expires_at> ?
- 	AND quantity-quantity_used>0
+ 	AND quantity>quantity_used
+	AND package_games.app_id = ?
 	ORDER BY 
 		priority ASC,
 		expires_at ASC
-	LIMIT 3
-	FOR UPDATE`, userID, now).Scan(&availableEventAdd).Error
+	LIMIT 10
+	FOR UPDATE of event_add_skip_ads`, userID, now, appID).Scan(&availableEventAdd).Error
 
 	if err != nil {
 		tx.Rollback()
@@ -84,6 +91,7 @@ func (r *RepoMySQL) ProcessEventUseSkipAds(ctx context.Context, request httpmode
 				SourceSubID:   event.EventAddID,
 				SourceSubType: entities.SourceAddSkipAds,
 				QuantityUsed:  useFromThis,
+				AppID:         appID,
 				Type:          entities.EventSubSkipAdsUse,
 				Description:   request.Description,
 			}

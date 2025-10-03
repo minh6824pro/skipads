@@ -29,8 +29,6 @@ type GinHttp struct {
 // NewHttpServer tạo Gin server
 func NewHttpServer(cfg config.Config, cmd *skipcmd.Command, query *skipquery.Query) (*GinHttp, error) {
 	logger, _ := zap.NewProduction()
-	// Lưu ý: không defer logger.Sync() ở đây nếu muốn dùng lâu dài
-	// defer logger.Sync()
 
 	g := &GinHttp{
 		engine:      gin.New(),
@@ -45,17 +43,17 @@ func NewHttpServer(cfg config.Config, cmd *skipcmd.Command, query *skipquery.Que
 	return g, nil
 }
 
-// initRouters thiết lập routes
+// initRouters set up routes
 func (g *GinHttp) initRouters() {
 	r := g.engine
 
-	// Request ID (đầu tiên)
+	// Request ID
 	r.Use(requestid.New())
 
-	// Recovery (thứ 2 - catch panics)
+	// Recovery
 	r.Use(gin.Recovery())
 
-	// Logging (cuối cùng - log mọi thứ)
+	// Logging
 	r.Use(g.LoggingRequest())
 
 	// CORS
@@ -68,17 +66,20 @@ func (g *GinHttp) initRouters() {
 
 	// Health check
 	if g.healthCheck {
-		r.GET("/health", func(c *gin.Context) {
+		r.GET("/v1/skip-ads/health", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"status": "ok"})
 		})
 	}
 
+	apiSkipAds := r.Group("/v1/skip-ads", g.ValidateHeaderAuthInternal(), g.AddRequestIDToContext())
+
 	// routes
-	r.POST("/purchases", g.HandlePurchasePackage)
-	r.GET("/skipads/:user_id", g.HandleGetUserSkipAds)
-	r.POST("/exchanges", g.HandleExchangePackage)
-	r.POST("/grants", g.HandleGrantSkipAds)
-	r.POST("/skipads", g.HandleUseSkipAds)
+	apiSkipAds.POST("/purchase", g.HandlePurchasePackage)
+	apiSkipAds.GET("/totals/:user_id", g.HandleGetUserSkipAds)
+	apiSkipAds.POST("/exchange", g.HandleExchangePackage)
+	apiSkipAds.POST("/grant", g.HandleGrantSkipAds)
+	apiSkipAds.POST("/skip", g.HandleUseSkipAds)
+	apiSkipAds.POST("/package", g.HandleCreatePackage)
 }
 
 func (g *GinHttp) StartWithGracefulShutdown() {

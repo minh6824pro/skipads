@@ -7,7 +7,6 @@ import (
 )
 
 func (cmd *Command) HandleEventExchangePackage(ctx context.Context, eventExchange *entities.EventAddSkipAds) error {
-	// TODO check user exists
 
 	// get package info
 	pkg, err := cmd.db.GetExchangePackageByID(ctx, eventExchange.PackageID)

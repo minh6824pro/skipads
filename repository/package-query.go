@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func (r *RepoMySQL) GetPurchasePackageByID(ctx context.Context, packageID *uint32) (entities.Package, error) {
+func (r *RepoMySQL) GetPurchasePackageByID(ctx context.Context, packageID *string) (entities.Package, error) {
 	var pkg entities.Package
 
 	err := r.db.WithContext(ctx).First(&pkg, "id= ? and type = ?", packageID, entities.EventAddSkipAdsPurchase).Error
@@ -24,7 +24,7 @@ func (r *RepoMySQL) GetPurchasePackageByID(ctx context.Context, packageID *uint3
 	return pkg, nil
 }
 
-func (r *RepoMySQL) GetExchangePackageByID(ctx context.Context, packageID *uint32) (entities.Package, error) {
+func (r *RepoMySQL) GetExchangePackageByID(ctx context.Context, packageID *string) (entities.Package, error) {
 	var pkg entities.Package
 
 	err := r.db.WithContext(ctx).First(&pkg, "id= ? and type = ?", packageID, entities.EventAddSkipAdsExchange).Error

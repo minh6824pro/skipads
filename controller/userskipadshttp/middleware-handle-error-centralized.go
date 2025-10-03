@@ -27,7 +27,6 @@ func (g *GinHttp) ErrorHandlerCentralized(c *gin.Context, err error) {
 		}
 		errorCode = errorcode.ErrUnknown
 	}
-
 	// handle error in service
 	var errSer *errorcode.ErrorService
 	if errors.As(err, &errSer) {
@@ -47,5 +46,5 @@ func (g *GinHttp) ErrorHandlerCentralized(c *gin.Context, err error) {
 	}
 
 	c.JSON(status, res)
-	c.Abort() // đảm bảo không tiếp tục handler
+	c.Abort()
 }
